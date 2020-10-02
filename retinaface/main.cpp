@@ -1,6 +1,7 @@
 #include <iostream>
-#include <RetinaFace.h>
+#include "RetinaFace.h"
 #include "timer.h"
+#include <opencv2/opencv.hpp>
 
 using namespace std;
 
@@ -15,15 +16,15 @@ int main()
     RetinaFace *rf = new RetinaFace(path, "net3");
 
     //cv::VideoCapture cap(0);
-    cv::Mat img = cv::imread("/home/ubuntu/Pictures/t1.jpg");
+    cv::Mat img = cv::imread("/home/cbw233/src/retinaface/data/img.jpg");
     
-    vector<Mat> imgs;
-    for(int i = 0; i < 64; i++) {
-        string prefix = "/home/ubuntu/Project/faceengine/faceengine/test/FaceEngineTest/images/gakki/";
-        string imgname = prefix + std::to_string(2005 + i) + ".jpg";
-        cv::Mat src = cv::imread(imgname);
-        imgs.push_back(img.clone());
-    }
+    // vector<Mat> imgs;
+    // for(int i = 0; i < 64; i++) {
+    //     string prefix = "/home/ubuntu/Project/faceengine/faceengine/test/FaceEngineTest/images/gakki/";
+    //     string imgname = prefix + std::to_string(2005 + i) + ".jpg";
+    //     cv::Mat src = cv::imread(imgname);
+    //     imgs.push_back(img.clone());
+    // }
 
     //rf.detect(img, 0.9);
     //rf.detectBatchImages(imgs, 0.9);
@@ -56,4 +57,3 @@ int main()
 
     return 0;
 }
-

@@ -6,7 +6,6 @@
 #include <map>
 #include <opencv2/opencv.hpp>
 #include <caffe/caffe.hpp>
-#include "tensorrt/trtretinafacenet.h"
 
 using namespace cv;
 using namespace std;
@@ -67,7 +66,7 @@ public:
     ~RetinaFace();
 
     void detectBatchImages(vector<cv::Mat> imgs, float threshold=0.5);
-    void detect(const Mat &img, float threshold=0.5, float scales=1.0);
+    void detect(Mat &img, float threshold=0.5, float scales=1.0);
 private:
     vector<FaceDetectInfo> postProcess(int inputW, int inputH, float threshold);
     anchor_box bbox_pred(anchor_box anchor, cv::Vec4f regress);
@@ -79,7 +78,7 @@ private:
 private:
     boost::shared_ptr<Net<float> > Net_;
     
-    TrtRetinaFaceNet *trtNet;
+    //TrtRetinaFaceNet *trtNet;
     float *cpuBuffers;
 
     float pixel_means[3] = {0.0, 0.0, 0.0};
@@ -104,19 +103,6 @@ private:
     //每一层fpn有几种形状的anchor
     //也就是ratio个数乘以scales个数
     map<string, int> _num_anchors;
-
-#ifdef USE_NPP
-    typedef struct GPUImg {
-    void *data;
-    int width;
-    int height;
-    int channel;
-    } GPUImg;
-
-    GPUImg _gpu_data8u;
-    GPUImg _resize_gpu_data8u;
-    GPUImg _resize_gpu_data32f;
-#endif
 };
 
 #endif // RETINAFACE_H

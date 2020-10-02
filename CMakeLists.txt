@@ -5,9 +5,9 @@ cmake_minimum_required(VERSION 3.2)
 #编译宏开关初期化
 option (USE_ARM64           "Set switch to build at ARM 64 platform mode"   OFF)
 option (USE_DEBUG           "Set switch to build at Debug mode"             OFF)
-option (USE_CAFFE           "Set switch to build at USE_CAFFE mode"         OFF)
-option (USE_TENSORRT        "Set switch to build at USE_TENSORRT mode"      ON)
-option (USE_NPP             "Set switch to build at USE_NPP mode"           ON)
+option (USE_CAFFE           "Set switch to build at USE_CAFFE mode"         ON)
+option (USE_TENSORRT        "Set switch to build at USE_TENSORRT mode"      OFF)
+option (USE_NPP             "Set switch to build at USE_NPP mode"           OFF)
 
 if(USE_ARM64)
     SET(CMAKE_SYSTEM_NAME Linux)
@@ -85,10 +85,11 @@ include_directories (
     "./retinaface"
     "./retinaface/tensorrt"
     "/usr/local/include"
-    "/usr/local/include/opencv"
-    "/usr/local/TensorRT/include"
-    "/usr/local/cuda/include"
-    "/home/ubuntu/caffe-office/caffe/include"
+    "/usr/include"
+    "/usr/include/opencv4"
+    "/opt/cuda/include"
+    "/home/cbw233/src/caffe/build/include"
+    "/home/cbw233/src/caffe/include"
 )
 
 ###############
@@ -120,7 +121,8 @@ if(USE_TENSORRT)
     target_link_libraries(retinaface -L/usr/local/cuda/lib64 -L/usr/local/TensorRT/lib -L/home/ubuntu/caffe-office/caffe/build/lib
         -lnvinfer -lnvcaffe_parser -lcuda -lcudart -lcublas -lcudnn -lcurand -lcaffe -lboost_thread -lnppig
         -lnppicc -lnppc -lnppidei -lnppist -lopencv_cudaarithm -lopencv_cudacodec -lopencv_cudafilters -lopencv_cudaimgproc)
+
 elseif(USE_CAFFE)
-    target_link_libraries(retinaface -L/home/ubuntu/caffe-office/caffe/build/lib -lcaffe -lboost_system -lboost_thread)
+    target_link_libraries(retinaface -L/home/cbw233/src/caffe/build/lib -lcaffe -lboost_system -lboost_thread)
 endif()
 
