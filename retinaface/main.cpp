@@ -1,59 +1,66 @@
 #include <iostream>
+#include <fstream>
+#include <opencv2/opencv.hpp>
+#include <thread>
 #include "RetinaFace.h"
 #include "timer.h"
-#include <opencv2/opencv.hpp>
 
 using namespace std;
 
-int main()
+// gflags::DEFINE_double(alpha, .35, "coefficient for equal score");
+// gflags::DEFINE_string(imgout, "/dev/null", "cropped iamge outpath");
+// gflags::DEFINE_string(logout, "/dev/null", "log outpath");
+// gflags::DEFINE_int32(margin, 0, "cropping bound added on box");
+// gflags::DEFINE_int32(numthread, 1, "number of program thread to use");
+
+void do_detect(string model_path, vector<string> imgnames, int thread_num, int thread_size);
+vector<string> file_chunk(vector<string> imgnames, int thread_num, int thread_size);
+
+int main(int argc, char* argv[])
 {
-//    std::unique_ptr<caffe::Caffe> caffe_context_;
-//    cudaSetDevice(0);
-//    caffe_context_.reset(new Caffe);
-//    Caffe::Set(caffe_context_.get());
+    // gflags::ParseCommandLineFlags(&argc, &argv, true);
+    string allpath = argv[1];
+    const int numthread = std::atoi(argv[2]);
 
     string path = "../model";
-    RetinaFace *rf = new RetinaFace(path, "net3");
 
-    //cv::VideoCapture cap(0);
-    cv::Mat img = cv::imread("/home/cbw233/src/retinaface/data/img.jpg");
-    
-    // vector<Mat> imgs;
-    // for(int i = 0; i < 64; i++) {
-    //     string prefix = "/home/ubuntu/Project/faceengine/faceengine/test/FaceEngineTest/images/gakki/";
-    //     string imgname = prefix + std::to_string(2005 + i) + ".jpg";
-    //     cv::Mat src = cv::imread(imgname);
-    //     imgs.push_back(img.clone());
-    // }
-
-    //rf.detect(img, 0.9);
-    //rf.detectBatchImages(imgs, 0.9);
-
-//    int c = 0;
-//    float time = 0;
-//    int count = 0;
-
-    //注：使用OPENCV计时和timer类计时有点偏差
-    float time = 0;
-    int count = 0;
-    RK::Timer ti;
-
-    while(/*cap.read(img)*/1) {
-        ti.reset();
-        //double t1 = (double)getTickCount();
-        rf->detect(img, 0.9);
-        //rf->detectBatchImages(imgs, 0.9);
-
-        //t1 = (double)getTickCount() - t1;
-        //time += t1 * 1000 / cv::getTickFrequency();
-        time += ti.elapsedMilliSeconds();
-        count ++;
-        if(count % 1000 == 0) {
-            printf("face detection average time = %f.\n", time / count);
-        }
+    //raed path from file
+    vector<string> imgs;
+    string fileline;
+    ifstream imgtxt(allpath);
+    while(getline(imgtxt, fileline)){
+        imgs.push_back(fileline);
     }
-    //t1 = (double)getTickCount() - t1;
-    //std::cout << "all compute time :" << t1*1000.0 / cv::getTickFrequency() << " ms \n";
+    imgtxt.close();
+    cout << "image load complete." << endl;
+
+    vector<thread> thread_pool;
+    for (int n_thread=0; n_thread!=numthread; ++n_thread){
+        thread_pool.emplace_back(do_detect, ref(path), ref(imgs), ref(n_thread), ref(numthread));
+    }
+    for (auto i=0; i!=thread_pool.size(); ++i){
+        thread_pool[i].join();
+        cout << "starting thread " << i;
+    }
+    cout << endl;
 
     return 0;
+}
+
+void do_detect(string model_path, vector<string> imgnames, int thread_num, int thread_size){
+    RetinaFace *rf = new RetinaFace(model_path, "net3");
+    vector<string> chunk_imgpaths = file_chunk(imgnames, thread_num, thread_size);
+    for (auto &n : chunk_imgpaths){
+        cout << "Predict image: " << n << endl;
+        cv::Mat mat_img = cv::imread(n);
+        rf->detect(mat_img, 0.9);
+    }
+}
+
+vector<string> file_chunk(vector<string> imgnames, int thread_num, int thread_size){
+    vector<string> imgname_chunk;
+    for(int i=thread_num; i<=imgnames.size(); i+=thread_size){
+        imgname_chunk.push_back(imgnames[i]);
+    }
+    return imgname_chunk;
 }

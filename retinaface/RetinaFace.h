@@ -64,8 +64,7 @@ class RetinaFace
 public:
     RetinaFace(string &model, string network = "net3", float nms = 0.4);
     ~RetinaFace();
-
-    void detectBatchImages(vector<cv::Mat> imgs, float threshold=0.5);
+    void detectBatchImages(vector<cv::Mat> &imgs, float threshold=0.5);
     void detect(Mat &img, float threshold=0.5, float scales=1.0);
 private:
     vector<FaceDetectInfo> postProcess(int inputW, int inputH, float threshold);

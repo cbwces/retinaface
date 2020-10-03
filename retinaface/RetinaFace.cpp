@@ -457,7 +457,6 @@ void RetinaFace::detect(Mat &img, float threshold, float scales)
     cvtColor(img, img, COLOR_BGR2RGB);
 
     //图片送入caffe输入层
-    cout << "Success input image!!!!!!!!" << endl;
     Blob<float>* input_layer = Net_->input_blobs()[0];
 
     input_layer->Reshape(1, 3, img.rows, img.cols);
@@ -575,17 +574,19 @@ void RetinaFace::detect(Mat &img, float threshold, float scales)
     post = (double)getTickCount() - post;
     std::cout << "post compute time :" << post*1000.0 / cv::getTickFrequency() << " ms \n";
 
-
     for(size_t i = 0; i < faceInfo.size(); i++) {
-        cv::Rect rect = cv::Rect(cv::Point2f(faceInfo[i].rect.x1, faceInfo[i].rect.y1), cv::Point2f(faceInfo[i].rect.x2, faceInfo[i].rect.y2));
-        cv::rectangle(src, rect, Scalar(0, 0, 255), 2);
+        std::cout << "bbox" << std::to_string(i+1) 
+            << ": x1 " << std::to_string(faceInfo[i].rect.x1) << " y1 " << std::to_string(faceInfo[i].rect.y1)
+            << " x2 " << std::to_string(faceInfo[i].rect.x2) << " y2 " << std::to_string(faceInfo[i].rect.y2) << std::endl;
+        // cv::Rect rect = cv::Rect(cv::Point2f(faceInfo[i].rect.x1, faceInfo[i].rect.y1), cv::Point2f(faceInfo[i].rect.x2, faceInfo[i].rect.y2));
+        // cv::rectangle(src, rect, Scalar(0, 0, 255), 2);
 
+        std::cout << "landmark:";
         for(size_t j = 0; j < 5; j++) {
-            cv::Point2f pt = cv::Point2f(faceInfo[i].pts.x[j], faceInfo[i].pts.y[j]);
-            cv::circle(src, pt, 1, Scalar(0, 255, 0), 2);
+            cout << " " << std::to_string(faceInfo[i].pts.x[j]) << " " << std::to_string(faceInfo[i].pts.y[j]);
+            // cv::Point2f pt = cv::Point2f(faceInfo[i].pts.x[j], faceInfo[i].pts.y[j]);
+            // cv::circle(src, pt, 1, Scalar(0, 255, 0), 2);
         }
+        cout << endl;
     }
-
-    imshow("dst", src);
-    waitKey(0);
 }

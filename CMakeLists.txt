@@ -123,6 +123,6 @@ if(USE_TENSORRT)
         -lnppicc -lnppc -lnppidei -lnppist -lopencv_cudaarithm -lopencv_cudacodec -lopencv_cudafilters -lopencv_cudaimgproc)
 
 elseif(USE_CAFFE)
-    target_link_libraries(retinaface -L/home/cbw233/src/caffe/build/lib -lcaffe -lboost_system -lboost_thread)
+    target_link_libraries(retinaface -L/home/cbw233/src/caffe/build/lib -lcaffe -lboost_system -lboost_thread -lpthread)
 endif()
 
