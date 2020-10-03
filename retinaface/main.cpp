@@ -13,8 +13,8 @@ using namespace std;
 // gflags::DEFINE_int32(margin, 0, "cropping bound added on box");
 // gflags::DEFINE_int32(numthread, 1, "number of program thread to use");
 
-void do_detect(string model_path, vector<string> imgnames, int thread_num, int thread_size);
-vector<string> file_chunk(vector<string> imgnames, int thread_num, int thread_size);
+void do_detect(string& path, vector<string>& imgnames, int thread_num, int thread_size);
+vector<string> file_chunk(vector<string>& imgnames, int thread_num, int thread_size);
 
 int main(int argc, char* argv[])
 {
@@ -40,16 +40,15 @@ int main(int argc, char* argv[])
     }
     for (auto i=0; i!=thread_pool.size(); ++i){
         thread_pool[i].join();
-        cout << "starting thread " << i;
     }
     cout << endl;
 
     return 0;
 }
 
-void do_detect(string model_path, vector<string> imgnames, int thread_num, int thread_size){
-    RetinaFace *rf = new RetinaFace(model_path, "net3");
+void do_detect(string& path, vector<string>& imgnames, int thread_num, int thread_size){
     vector<string> chunk_imgpaths = file_chunk(imgnames, thread_num, thread_size);
+    RetinaFace *rf = new RetinaFace(path, "net3");
     for (auto &n : chunk_imgpaths){
         cout << "Predict image: " << n << endl;
         cv::Mat mat_img = cv::imread(n);
@@ -57,9 +56,9 @@ void do_detect(string model_path, vector<string> imgnames, int thread_num, int t
     }
 }
 
-vector<string> file_chunk(vector<string> imgnames, int thread_num, int thread_size){
+vector<string> file_chunk(vector<string>& imgnames, int thread_num, int thread_size){
     vector<string> imgname_chunk;
-    for(int i=thread_num; i<=imgnames.size(); i+=thread_size){
+    for(int i=thread_num; i<imgnames.size(); i+=thread_size){
         imgname_chunk.push_back(imgnames[i]);
     }
     return imgname_chunk;

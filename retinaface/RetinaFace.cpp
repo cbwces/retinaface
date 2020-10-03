@@ -441,14 +441,14 @@ void RetinaFace::detect(Mat &img, float threshold, float scales)
         return;
     }
 
-    double pre = (double)getTickCount(); //计时
+    // double pre = (double)getTickCount(); //计时
     int ws = (img.cols + 31) / 32 * 32;
     int hs = (img.rows + 31) / 32 * 32;
 
     //边缘缩减为32的整数倍
     cv::copyMakeBorder(img, img, 0, hs - img.rows, 0, ws - img.cols, cv::BORDER_CONSTANT,cv::Scalar(0));
 
-    cv::Mat src = img.clone();
+    // cv::Mat src = img.clone();
 
     //to float
     img.convertTo(img, CV_32FC3);
@@ -477,17 +477,17 @@ void RetinaFace::detect(Mat &img, float threshold, float scales)
     * objects in input_channels. */
     split(img, input_channels);
 
-    pre = (double)getTickCount() - pre;
-    std::cout << "pre compute time :" << pre*1000.0 / cv::getTickFrequency() << " ms \n";
+    // pre = (double)getTickCount() - pre;
+    // std::cout << "pre compute time :" << pre*1000.0 / cv::getTickFrequency() << " ms \n";
 
     //LOG(INFO) << "Start net_->Forward()";
-    double t1 = (double)getTickCount();
+    // double t1 = (double)getTickCount();
     Net_->Forward();
-    t1 = (double)getTickCount() - t1;
-    std::cout << "infer compute time :" << t1*1000.0 / cv::getTickFrequency() << " ms \n";
+    // t1 = (double)getTickCount() - t1;
+    // std::cout << "infer compute time :" << t1*1000.0 / cv::getTickFrequency() << " ms \n";
     //LOG(INFO) << "Done net_->Forward()";
 
-    double post = (double)getTickCount();
+    // double post = (double)getTickCount();
     string name_bbox = "face_rpn_bbox_pred_";
     string name_score ="face_rpn_cls_prob_reshape_";
     string name_landmark ="face_rpn_landmark_pred_";
@@ -495,7 +495,7 @@ void RetinaFace::detect(Mat &img, float threshold, float scales)
     vector<FaceDetectInfo> faceInfo;
     for(size_t i = 0; i < _feat_stride_fpn.size(); i++) {
 ///////////////////////////////////////////////
-        double s1 = (double)getTickCount();
+        // double s1 = (double)getTickCount();
 ///////////////////////////////////////////////
         string key = "stride" + std::to_string(_feat_stride_fpn[i]);
         int stride = _feat_stride_fpn[i];
@@ -524,8 +524,8 @@ void RetinaFace::detect(Mat &img, float threshold, float scales)
         size_t num_anchor = _num_anchors[key];
 
 ///////////////////////////////////////////////
-        s1 = (double)getTickCount() - s1;
-        std::cout << "s1 compute time :" << s1*1000.0 / cv::getTickFrequency() << " ms \n";
+        // s1 = (double)getTickCount() - s1;
+        // std::cout << "s1 compute time :" << s1*1000.0 / cv::getTickFrequency() << " ms \n";
 ///////////////////////////////////////////////
 
         //存储顺序 h * w * num_anchor
@@ -571,8 +571,8 @@ void RetinaFace::detect(Mat &img, float threshold, float scales)
     //排序nms
     faceInfo = nms(faceInfo, nms_threshold);
 
-    post = (double)getTickCount() - post;
-    std::cout << "post compute time :" << post*1000.0 / cv::getTickFrequency() << " ms \n";
+    // post = (double)getTickCount() - post;
+    // std::cout << "post compute time :" << post*1000.0 / cv::getTickFrequency() << " ms \n";
 
     for(size_t i = 0; i < faceInfo.size(); i++) {
         std::cout << "bbox" << std::to_string(i+1) 
