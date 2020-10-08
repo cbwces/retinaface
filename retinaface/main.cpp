@@ -19,27 +19,22 @@ int main(int argc, char* argv[])
     int numthread = 1;
     float margin = 0.0;
     string savepath = "";
-    if (argc <= 3){
-        numthread = std::atoi(argv[2]);
+    if (argc == 3){
+        savepath = argv[2];
     }
     else if(argc == 4){
         savepath = argv[2];
-        numthread = std::atoi(argv[3]);
-        margin = 0.0;
+        margin = std::atof(argv[3]);
     }
     else if(argc == 5){
-        margin = std::atof(argv[2]);
-        savepath = argv[3];
+        savepath = argv[2];
+        margin = std::atof(argv[3]);
         numthread = std::atoi(argv[4]);
     }
     else{
-        cout << "(imagepathfile, margin(optional, default=0), savepath(optional, default=\"\"), threads(optional, default=1)" << endl;
-        EXIT_FAILURE;
+        cout << "(imagepathfile, savepath, margin(default=0), threads(optional, default=1)" << endl;
+        return 1;
     }
-
-    cout << "thread:" << numthread << endl;
-    cout << "margin:" << margin << endl;
-    cout << "savepath:" << savepath << endl;
 
     string modelpath = "../model";
 
@@ -70,21 +65,18 @@ void do_detect(string& path, vector<string>& imgnames, int thread_num, int& thre
 
     for (auto &n : chunk_imgpaths){
         cv::Mat mat_img = cv::imread(n);
-        FaceDetectInfo face = rf->detect(mat_img, 0.9);
+        FaceDetectInfo face = rf->detect(mat_img, 0.0);
 
         cv::Mat croped_img;
-        if (savepath != ""){
-            if ((double)(long long)margin == margin){
-                croped_img = rf->icropimg(face.rect, margin);
-            }
-            else 
-            {
-                croped_img = rf->fcropimg(face.rect, margin);
-            }
-        //裁剪并保存图片
-            cvtColor(croped_img, croped_img, COLOR_BGR2RGB);
-            savefile(croped_img, n, savepath);
+        if ((double)(long long)margin == margin){
+            croped_img = rf->icropimg(face.rect, margin);
         }
+        else 
+        {
+            croped_img = rf->fcropimg(face.rect, margin);
+        }
+        //裁剪并保存图片
+        savefile(croped_img, n, savepath);
     }
 }
 

@@ -445,6 +445,7 @@ FaceDetectInfo RetinaFace::detect(Mat &img, float threshold, float scales)
 
     // double pre = (double)getTickCount(); //计时
 
+    this->resized_img = img;
     //边缘拉伸为32的整数倍
     int ws = (img.cols + 31) / 32 * 32;
     int hs = (img.rows + 31) / 32 * 32;
@@ -462,13 +463,10 @@ FaceDetectInfo RetinaFace::detect(Mat &img, float threshold, float scales)
     // }
     // cv::Mat dstimg(hs, ws, CV_32FC3);
     img.convertTo(img, CV_32FC3);
-    // cv::resize(img, dstimg, cv::Size(ws, hs));
-
-    // cv::Mat src = img.clone();
+    // cv::resize(dstimg, dstimg, cv::Size(ws, hs));
 
     //rgb
     cvtColor(img, img, COLOR_BGR2RGB);
-    this->resized_img = img;
 
     //图片送入caffe输入层
     Blob<float>* input_layer = Net_->input_blobs()[0];
@@ -621,7 +619,6 @@ bool comp_max(const int &a, const int &b)
 }
 
 cv::Mat RetinaFace::icropimg(anchor_box &rect, int margin){
-    resized_img.convertTo(resized_img, CV_8UC3);
     int left_x = std::max(0, (int)(rect.x1-margin), comp_max);
     int top_y = std::max(0, (int)(rect.y1-margin), comp_max);
     int right_x = std::min(resized_img.cols, (int)(rect.x2+margin), comp_min);
@@ -633,7 +630,6 @@ cv::Mat RetinaFace::icropimg(anchor_box &rect, int margin){
 }
 
 cv::Mat RetinaFace::fcropimg(anchor_box &rect, float margin){
-    resized_img.convertTo(resized_img, CV_8UC3);
     float width = rect.x2 - rect.x1;
     float height = rect.y2 - rect.y1;
     int left_x = std::max(0, (int)(rect.x1-width*margin), comp_max);
