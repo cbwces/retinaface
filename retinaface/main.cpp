@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <opencv2/opencv.hpp>
 #include <thread>
 #include <math.h>
 #include "RetinaFace.h"
@@ -10,6 +9,7 @@ using namespace std;
 void do_detect(string& path, vector<string>& imgnames, float& threshold, int thread_num, int& thread_size, float& margin, string& savepath);
 vector<string> file_chunk(vector<string>& imgnames, int thread_num, int& thread_size);
 void savefile(Mat& img, string& current_path, string& aim_path);
+void print_info(string& current_path, anchor_box& bbox, FacePts& pts);
 
 int main(int argc, char* argv[])
 {
@@ -77,6 +77,7 @@ void do_detect(string& path, vector<string>& imgnames, float& threshold, int thr
 
         if (face.size() != 0){
 
+            print_info(n, face[0].rect, face[0].pts);
             cv::Mat croped_img;
             if ((double)(long long)margin == margin){
                 croped_img = rf->icropimg(face[0].rect, margin);
@@ -104,4 +105,19 @@ void savefile(Mat& img, string& current_path, string& aim_path){
     auto last_splash_pos = current_path.find_last_of("/\\");
     string complete_save_path = aim_path + "/" +current_path.substr(last_splash_pos+1);
     cv::imwrite(complete_save_path, img);
+}
+
+void print_info(string& current_path, anchor_box& bbox, FacePts& pts){
+
+    std::cout << current_path << std::endl;
+
+    std::cout << "bbox" 
+        << ": x1 " << std::to_string(bbox.x1) << " y1 " << std::to_string(bbox.y1)
+        << " x2 " << std::to_string(bbox.x2) << " y2 " << std::to_string(bbox.y2) << std::endl;
+
+    std::cout << "landmark:";
+    for(size_t j = 0; j < 5; ++j) {
+        std::cout << " " << std::to_string(pts.x[j]) << " " << std::to_string(pts.y[j]);
+    }
+    std::cout << std::endl;
 }

@@ -594,17 +594,6 @@ vector<FaceDetectInfo> RetinaFace::detect(Mat &img, float threshold, float scale
     }
     //排序nms
     faceInfo = nms(faceInfo, nms_threshold);
-
-    std::cout << "bbox" 
-        << ": x1 " << std::to_string(faceInfo[0].rect.x1) << " y1 " << std::to_string(faceInfo[0].rect.y1)
-        << " x2 " << std::to_string(faceInfo[0].rect.x2) << " y2 " << std::to_string(faceInfo[0].rect.y2) << std::endl;
-
-    std::cout << "landmark:";
-    for(size_t j = 0; j < 5; ++j) {
-        cout << " " << std::to_string(faceInfo[0].pts.x[j]) << " " << std::to_string(faceInfo[0].pts.y[j]);
-    }
-    cout << std::endl;
-
     return faceInfo;
 }
 
@@ -624,7 +613,6 @@ cv::Mat RetinaFace::icropimg(anchor_box &rect, int margin){
     int right_x = std::min(resized_img.cols, (int)(rect.x2+margin), comp_min);
     int bottom_y = std::min(resized_img.rows, (int)(rect.y2+margin), comp_min);
     cv::Rect rect_box = cv::Rect(left_x, top_y, right_x-left_x, bottom_y-top_y);
-    cout << rect_box << endl;
     cv::Mat croped_img(resized_img, rect_box);
     return croped_img;
 }

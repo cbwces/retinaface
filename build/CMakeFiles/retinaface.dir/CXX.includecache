@@ -369,8 +369,6 @@ iostream
 -
 fstream
 -
-opencv2/opencv.hpp
--
 thread
 -
 math.h
