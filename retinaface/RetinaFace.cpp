@@ -620,43 +620,27 @@ bool comp_max(const int &a, const int &b)
     return a < b;
 }
 
-cv::Mat RetinaFace::icropimg(Mat &img, anchor_box &rect, int margin){
-    cout << rect.x1 << endl;
-    cout << rect.x2 << endl;
-    cout << rect.y1 << endl;
-    cout << rect.y2 << endl;
-    img.convertTo(img, CV_8UC3);
+cv::Mat RetinaFace::icropimg(anchor_box &rect, int margin){
+    resized_img.convertTo(resized_img, CV_8UC3);
     int left_x = std::max(0, (int)(rect.x1-margin), comp_max);
     int top_y = std::max(0, (int)(rect.y1-margin), comp_max);
-    int right_x = std::min(img.cols, (int)(rect.x2+margin), comp_min);
-    int bottom_y = std::min(img.rows, (int)(rect.y2+margin), comp_min);
-    cout << left_x << endl;
-    cout << right_x << endl;
-    cout << top_y << endl;
-    cout << bottom_y << endl;
+    int right_x = std::min(resized_img.cols, (int)(rect.x2+margin), comp_min);
+    int bottom_y = std::min(resized_img.rows, (int)(rect.y2+margin), comp_min);
     cv::Rect rect_box = cv::Rect(left_x, top_y, right_x-left_x, bottom_y-top_y);
     cout << rect_box << endl;
-    cv::Mat croped_img(img, rect_box);
+    cv::Mat croped_img(resized_img, rect_box);
     return croped_img;
 }
 
-cv::Mat RetinaFace::fcropimg(Mat &img, anchor_box &rect, float margin){
-    cout << rect.x1 << endl;
-    cout << rect.x2 << endl;
-    cout << rect.y1 << endl;
-    cout << rect.y2 << endl;
-    img.convertTo(img, CV_8UC3);
+cv::Mat RetinaFace::fcropimg(anchor_box &rect, float margin){
+    resized_img.convertTo(resized_img, CV_8UC3);
     float width = rect.x2 - rect.x1;
     float height = rect.y2 - rect.y1;
     int left_x = std::max(0, (int)(rect.x1-width*margin), comp_max);
     int top_y = std::max(0, (int)(rect.y1-height*margin), comp_max);
-    int right_x = std::min(img.cols, (int)(rect.x2+width*margin), comp_min);
-    int bottom_y = std::min(img.rows, (int)(rect.y2+height*margin), comp_min);
-    cout << left_x << endl;
-    cout << right_x << endl;
-    cout << top_y << endl;
-    cout << bottom_y << endl;
+    int right_x = std::min(resized_img.cols, (int)(rect.x2+width*margin), comp_min);
+    int bottom_y = std::min(resized_img.rows, (int)(rect.y2+height*margin), comp_min);
     cv::Rect rect_box = cv::Rect(left_x, top_y, right_x-left_x, bottom_y-top_y);
-    cv::Mat croped_img(img, rect_box);
+    cv::Mat croped_img(resized_img, rect_box);
     return croped_img;
 }

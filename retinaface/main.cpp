@@ -75,11 +75,11 @@ void do_detect(string& path, vector<string>& imgnames, int thread_num, int& thre
         cv::Mat croped_img;
         if (savepath != ""){
             if ((double)(long long)margin == margin){
-                croped_img = rf->icropimg(rf->resized_img, face.rect, margin);
+                croped_img = rf->icropimg(face.rect, margin);
             }
             else 
             {
-                croped_img = rf->fcropimg(rf->resized_img, face.rect, margin);
+                croped_img = rf->fcropimg(face.rect, margin);
             }
         //裁剪并保存图片
             cvtColor(croped_img, croped_img, COLOR_BGR2RGB);
