@@ -67,8 +67,9 @@ public:
     void detectBatchImages(vector<cv::Mat> &imgs, float threshold=0.5);
     // void detect(Mat &img, float threshold=0.5, float scales=1.0);
     FaceDetectInfo detect(Mat &img, float threshold=0.5, float scales=1.0);
-    Mat cropimg(Mat &img, anchor_box &rect, float& margin);
-    Mat cropimg(Mat &img, anchor_box &rect, int& margin);
+    Mat fcropimg(Mat &img, anchor_box &rect, float margin);
+    Mat icropimg(Mat &img, anchor_box &rect, int margin);
+    Mat resized_img;
 private:
     vector<FaceDetectInfo> postProcess(int inputW, int inputH, float threshold);
     anchor_box bbox_pred(anchor_box anchor, cv::Vec4f regress);

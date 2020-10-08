@@ -326,6 +326,7 @@ anchor_box RetinaFace::bbox_pred(anchor_box anchor, cv::Vec4f regress)
 
     float width = anchor.x2 - anchor.x1 + 1;
     float height = anchor.y2 - anchor.y1 + 1;
+    //人脸框中心点
     float ctr_x = anchor.x1 + 0.5 * (width - 1.0);
     float ctr_y = anchor.y1 + 0.5 * (height - 1.0);
 
@@ -443,19 +444,31 @@ FaceDetectInfo RetinaFace::detect(Mat &img, float threshold, float scales)
     }
 
     // double pre = (double)getTickCount(); //计时
+
+    //边缘拉伸为32的整数倍
     int ws = (img.cols + 31) / 32 * 32;
     int hs = (img.rows + 31) / 32 * 32;
-
-    //边缘缩减为32的整数倍
     cv::copyMakeBorder(img, img, 0, hs - img.rows, 0, ws - img.cols, cv::BORDER_CONSTANT,cv::Scalar(0));
+
+    // int ws = img.cols / 32 * 32;
+    // int hs = img.rows / 32 * 32;
+    // if (ws == 0)
+    // {
+    //     ws = 32;
+    // }
+    // if (hs == 0)
+    // {
+    //     hs = 32;
+    // }
+    // cv::Mat dstimg(hs, ws, CV_32FC3);
+    img.convertTo(img, CV_32FC3);
+    // cv::resize(img, dstimg, cv::Size(ws, hs));
 
     // cv::Mat src = img.clone();
 
-    //to float
-    img.convertTo(img, CV_32FC3);
-
     //rgb
     cvtColor(img, img, COLOR_BGR2RGB);
+    this->resized_img = img;
 
     //图片送入caffe输入层
     Blob<float>* input_layer = Net_->input_blobs()[0];
@@ -597,23 +610,52 @@ FaceDetectInfo RetinaFace::detect(Mat &img, float threshold, float scales)
     return faceInfo[0];
 }
 
-cv::Mat RetinaFace::cropimg(Mat &img, anchor_box &rect, int& margin){
-    float left_x = std::max(0.f, rect.x1-margin);
-    float top_y = std::max(0.f, rect.y1-margin);
-    float right_x = std::min((float)(img.cols), rect.x2+margin);
-    float bottom_y = std::min((float)(img.rows), rect.y2+margin);
+bool comp_min(const int &a, const int &b)
+{
+    return a < b;
+}
+
+bool comp_max(const int &a, const int &b)
+{
+    return a < b;
+}
+
+cv::Mat RetinaFace::icropimg(Mat &img, anchor_box &rect, int margin){
+    cout << rect.x1 << endl;
+    cout << rect.x2 << endl;
+    cout << rect.y1 << endl;
+    cout << rect.y2 << endl;
+    img.convertTo(img, CV_8UC3);
+    int left_x = std::max(0, (int)(rect.x1-margin), comp_max);
+    int top_y = std::max(0, (int)(rect.y1-margin), comp_max);
+    int right_x = std::min(img.cols, (int)(rect.x2+margin), comp_min);
+    int bottom_y = std::min(img.rows, (int)(rect.y2+margin), comp_min);
+    cout << left_x << endl;
+    cout << right_x << endl;
+    cout << top_y << endl;
+    cout << bottom_y << endl;
     cv::Rect rect_box = cv::Rect(left_x, top_y, right_x-left_x, bottom_y-top_y);
+    cout << rect_box << endl;
     cv::Mat croped_img(img, rect_box);
     return croped_img;
 }
 
-cv::Mat RetinaFace::cropimg(Mat &img, anchor_box &rect, float& margin){
+cv::Mat RetinaFace::fcropimg(Mat &img, anchor_box &rect, float margin){
+    cout << rect.x1 << endl;
+    cout << rect.x2 << endl;
+    cout << rect.y1 << endl;
+    cout << rect.y2 << endl;
+    img.convertTo(img, CV_8UC3);
     float width = rect.x2 - rect.x1;
     float height = rect.y2 - rect.y1;
-    float left_x = std::max(0.f, rect.x1-width*margin);
-    float top_y = std::max(0.f, rect.y1-height*margin);
-    float right_x = std::min((float)(img.cols), rect.x2+width*margin);
-    float bottom_y = std::min((float)(img.rows), rect.y2+height*margin);
+    int left_x = std::max(0, (int)(rect.x1-width*margin), comp_max);
+    int top_y = std::max(0, (int)(rect.y1-height*margin), comp_max);
+    int right_x = std::min(img.cols, (int)(rect.x2+width*margin), comp_min);
+    int bottom_y = std::min(img.rows, (int)(rect.y2+height*margin), comp_min);
+    cout << left_x << endl;
+    cout << right_x << endl;
+    cout << top_y << endl;
+    cout << bottom_y << endl;
     cv::Rect rect_box = cv::Rect(left_x, top_y, right_x-left_x, bottom_y-top_y);
     cv::Mat croped_img(img, rect_box);
     return croped_img;
