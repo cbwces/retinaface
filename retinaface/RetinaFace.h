@@ -66,7 +66,7 @@ public:
     ~RetinaFace();
     void detectBatchImages(vector<cv::Mat> &imgs, float threshold=0.5);
     // void detect(Mat &img, float threshold=0.5, float scales=1.0);
-    FaceDetectInfo detect(Mat &img, float threshold=0.5, float scales=1.0);
+    vector<FaceDetectInfo> detect(Mat &img, float threshold=0.5, float scales=1.0);
     Mat fcropimg(anchor_box &rect, float margin);
     Mat icropimg(anchor_box &rect, int margin);
     Mat resized_img;

@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void do_detect(string& path, vector<string>& imgnames, int thread_num, int& thread_size, float& margin, string& savepath);
+void do_detect(string& path, vector<string>& imgnames, float& threshold, int thread_num, int& thread_size, float& margin, string& savepath);
 vector<string> file_chunk(vector<string>& imgnames, int thread_num, int& thread_size);
 void savefile(Mat& img, string& current_path, string& aim_path);
 
@@ -19,6 +19,8 @@ int main(int argc, char* argv[])
     int numthread = 1;
     float margin = 0.0;
     string savepath = "";
+    float face_quality_threshold = 0.9;
+
     if (argc == 3){
         savepath = argv[2];
     }
@@ -31,8 +33,14 @@ int main(int argc, char* argv[])
         margin = std::atof(argv[3]);
         numthread = std::atoi(argv[4]);
     }
+    else if(argc == 6){
+        savepath = argv[2];
+        margin = std::atof(argv[3]);
+        numthread = std::atoi(argv[4]);
+        face_quality_threshold = std::atof(argv[5]);
+    }
     else{
-        cout << "(imagepathfile, savepath, margin(default=0), threads(optional, default=1)" << endl;
+        cout << "imagepathfile, savepath, margin(default=0), threads(optional, default=1), score_threshold(optional, default=.9)" << endl;
         return 1;
     }
 
@@ -49,7 +57,7 @@ int main(int argc, char* argv[])
 
     vector<thread> thread_pool;
     for (int n_thread=0; n_thread!=numthread; ++n_thread){
-        thread_pool.emplace_back(do_detect, ref(modelpath), ref(imgs), n_thread, ref(numthread), ref(margin), ref(savepath));
+        thread_pool.emplace_back(do_detect, ref(modelpath), ref(imgs), ref(face_quality_threshold), n_thread, ref(numthread), ref(margin), ref(savepath));
     }
     for (auto i=0; i!=thread_pool.size(); ++i){
         thread_pool[i].join();
@@ -58,25 +66,28 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void do_detect(string& path, vector<string>& imgnames, int thread_num, int& thread_size, float& margin, string& savepath){
+void do_detect(string& path, vector<string>& imgnames, float& threshold, int thread_num, int& thread_size, float& margin, string& savepath){
 
     vector<string> chunk_imgpaths = file_chunk(imgnames, thread_num, thread_size);
     RetinaFace *rf = new RetinaFace(path, "net3");
 
     for (auto &n : chunk_imgpaths){
         cv::Mat mat_img = cv::imread(n);
-        FaceDetectInfo face = rf->detect(mat_img, 0.0);
+        vector<FaceDetectInfo> face = rf->detect(mat_img, threshold);
 
-        cv::Mat croped_img;
-        if ((double)(long long)margin == margin){
-            croped_img = rf->icropimg(face.rect, margin);
+        if (face.size() != 0){
+
+            cv::Mat croped_img;
+            if ((double)(long long)margin == margin){
+                croped_img = rf->icropimg(face[0].rect, margin);
+            }
+            else 
+            {
+                croped_img = rf->fcropimg(face[0].rect, margin);
+            }
+            //裁剪并保存图片
+            savefile(croped_img, n, savepath);
         }
-        else 
-        {
-            croped_img = rf->fcropimg(face.rect, margin);
-        }
-        //裁剪并保存图片
-        savefile(croped_img, n, savepath);
     }
 }
 

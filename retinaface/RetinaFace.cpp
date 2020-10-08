@@ -437,7 +437,7 @@ std::vector<FaceDetectInfo> RetinaFace::nms(std::vector<FaceDetectInfo>& bboxes,
     return bboxes_nms;
 }
 
-FaceDetectInfo RetinaFace::detect(Mat &img, float threshold, float scales)
+vector<FaceDetectInfo> RetinaFace::detect(Mat &img, float threshold, float scales)
 {
     if(img.empty()) {
         EXIT_FAILURE;
@@ -589,23 +589,23 @@ FaceDetectInfo RetinaFace::detect(Mat &img, float threshold, float scales)
             }
         }
     }
-
+    if (faceInfo.size() == 0){
+        return faceInfo;
+    }
     //排序nms
     faceInfo = nms(faceInfo, nms_threshold);
 
-    if (faceInfo.size() != 0){
-        std::cout << "bbox" 
-            << ": x1 " << std::to_string(faceInfo[0].rect.x1) << " y1 " << std::to_string(faceInfo[0].rect.y1)
-            << " x2 " << std::to_string(faceInfo[0].rect.x2) << " y2 " << std::to_string(faceInfo[0].rect.y2) << std::endl;
+    std::cout << "bbox" 
+        << ": x1 " << std::to_string(faceInfo[0].rect.x1) << " y1 " << std::to_string(faceInfo[0].rect.y1)
+        << " x2 " << std::to_string(faceInfo[0].rect.x2) << " y2 " << std::to_string(faceInfo[0].rect.y2) << std::endl;
 
-        std::cout << "landmark:";
-        for(size_t j = 0; j < 5; ++j) {
-            cout << " " << std::to_string(faceInfo[0].pts.x[j]) << " " << std::to_string(faceInfo[0].pts.y[j]);
-        }
-        cout << std::endl;
+    std::cout << "landmark:";
+    for(size_t j = 0; j < 5; ++j) {
+        cout << " " << std::to_string(faceInfo[0].pts.x[j]) << " " << std::to_string(faceInfo[0].pts.y[j]);
     }
+    cout << std::endl;
 
-    return faceInfo[0];
+    return faceInfo;
 }
 
 bool comp_min(const int &a, const int &b)
